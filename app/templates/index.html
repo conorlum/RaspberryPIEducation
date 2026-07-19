@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+<main class="portal">
+  <h1>{{ portal_title }}</h1>
+  <p class="tagline">Offline education, no internet required.</p>
+
+  {% if has_content %}
+    <a class="library-link" href="/kiwix/">Browse the library</a>
+  {% else %}
+    <p class="empty-state">
+      No content installed yet. Add <code>.zim</code> files to
+      <code>content/zim/</code> and restart <code>kiwix-serve</code>.
+    </p>
+  {% endif %}
+</main>
+{% endblock %}

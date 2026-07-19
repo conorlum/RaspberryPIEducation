@@ -1,0 +1,14 @@
+[Unit]
+Description=RACHEL portal (Flask via gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/gunicorn --bind 127.0.0.1:5000 app.app:app
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

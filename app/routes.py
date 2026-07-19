@@ -1,0 +1,43 @@
+from pathlib import Path
+
+from flask import Blueprint, current_app, redirect, render_template, url_for
+
+bp = Blueprint("portal", __name__)
+
+# Paths that phones/laptops probe right after joining WiFi to check for
+# internet access. Redirecting them to the portal home is what makes the OS
+# pop a browser open automatically instead of the user having to find the
+# portal themselves.
+CAPTIVE_PORTAL_PROBES = [
+    "/generate_204",  # Android
+    "/gen_204",  # Android (older)
+    "/hotspot-detect.html",  # Apple
+    "/library/test/success.html",  # Apple (older)
+    "/connecttest.txt",  # Windows
+    "/ncsi.txt",  # Windows
+]
+
+
+@bp.route("/")
+def index():
+    zim_dir = Path(current_app.config["CONTENT_DIR"])
+    has_content = zim_dir.is_dir() and any(zim_dir.glob("*.zim"))
+    return render_template(
+        "index.html",
+        portal_title=current_app.config["PORTAL_TITLE"],
+        has_content=has_content,
+    )
+
+
+def _redirect_to_home(**_kwargs):
+    return redirect(url_for("portal.index"))
+
+
+for _probe in CAPTIVE_PORTAL_PROBES:
+    _endpoint = "probe_" + _probe.strip("/").replace("/", "_").replace(".", "_")
+    bp.add_url_rule(_probe, endpoint=_endpoint, view_func=_redirect_to_home)
+
+
+@bp.route("/<path:_unmatched>")
+def catch_all(_unmatched):
+    return redirect(url_for("portal.index"))

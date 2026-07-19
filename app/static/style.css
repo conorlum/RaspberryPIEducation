@@ -1,0 +1,47 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f172a;
+  color: #f1f5f9;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+}
+
+.portal {
+  padding: 2rem;
+  max-width: 32rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tagline {
+  color: #94a3b8;
+  margin-bottom: 2rem;
+}
+
+.library-link {
+  display: inline-block;
+  padding: 0.9rem 2rem;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.empty-state {
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.empty-state code {
+  background: #1e293b;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+}

@@ -1,0 +1,14 @@
+[Unit]
+Description=Kiwix content server (serves .zim files from content/zim)
+After=network.target
+
+[Service]
+Type=simple
+User=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=/usr/bin/kiwix-serve --port=8080 --monitorLibrary @APP_DIR@/content/zim
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
