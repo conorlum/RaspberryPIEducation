@@ -45,8 +45,14 @@ templates work regardless of clone path), runs `setup/hotspot.sh`, and enables/s
 three services. Re-running this same script on a second Pi is the "push to another Pi"
 deployment path.
 
-Add content by dropping `.zim` files (from https://library.kiwix.org) into `content/zim/`
-— `kiwix-serve` runs with `--monitorLibrary` and picks them up without a restart.
+Add content by dropping `.zim` files (from https://library.kiwix.org) into `content/zim/`,
+then `sudo systemctl restart kiwix-serve`. `kiwix-serve` only accepts explicit ZIM file
+paths or a `--library <xml>` file — it can't be pointed at a directory directly, so
+`setup/kiwix-library-refresh.sh` runs as an `ExecStartPre` to regenerate
+`content/library.xml` from whatever's in `content/zim/` each time the service (re)starts.
+`--monitorLibrary` only watches that generated XML file for live-reload, not the `zim/`
+directory itself, so newly dropped `.zim` files still need the restart above to be picked
+up.
 
 ## Architecture
 
@@ -67,6 +73,23 @@ device on hotspot -> nginx :80 -> /kiwix/*  -> kiwix-serve :8080 (serves *.zim f
   (`app/routes.py` `index()`, `app/templates/index.html`) and the captive-portal redirect
   logic. This is the layer to extend for custom pages, branding, or additional content
   types — don't add ZIM/content-serving logic here; that belongs to kiwix-serve.
+
+  `/library` (`app/routes.py`, `app/library.py`, `app/templates/library.html`) replaces
+  kiwix-serve's own root welcome page, which is broken when proxied under `/kiwix/`
+  (broken cover images, dead search links, a hardcoded kiwix.org link — none of that is
+  our code, it's kiwix-serve's stock UI). It parses the kiwix-serve-generated
+  `content/library.xml` (plain metadata via stdlib `ElementTree` — no new dependency, and
+  `app/` still never opens ZIM files directly) to render a card per installed ZIM. Live
+  search (`/api/search-suggest`, backed by `app/kiwix_client.py`) calls kiwix-serve's own
+  `/suggest` endpoint directly on `127.0.0.1:<KIWIX_PORT>` once per installed ZIM —
+  bypassing nginx/the browser entirely, which sidesteps the sub-path proxy bugs that broke
+  kiwix-serve's stock search — and caps results per ZIM via `RESULTS_PER_ZIM` so one large
+  ZIM (e.g. a full Wikipedia dump) can't flood out results from smaller ones. Card/article
+  links are built from `KIWIX_VIEWER_URL_TEMPLATE`/`KIWIX_ARTICLE_URL_TEMPLATE` — these are
+  **unverified assumptions** (no live Pi/ZIM was available while building this) about
+  kiwix-serve's per-book viewer URL scheme; if cards or search results 404 or open the
+  wrong book on real hardware, adjust those two settings in `config/settings.env` rather
+  than template/route code.
 
 ### Captive portal mechanism (the trickiest part — read before touching hotspot/routing code)
 

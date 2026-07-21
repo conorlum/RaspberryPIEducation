@@ -70,5 +70,5 @@ systemctl reload nginx
 echo
 echo "Done. Hotspot '${WIFI_SSID:-<unset>}' should be broadcasting."
 echo "Check status with: systemctl status rachel-portal kiwix-serve nginx"
-echo "Add content by copying .zim files into $APP_DIR/content/zim/"
-echo "(kiwix-serve --monitorLibrary picks them up automatically)."
+echo "Add content by copying .zim files into $APP_DIR/content/zim/, then run:"
+echo "  sudo systemctl restart kiwix-serve"

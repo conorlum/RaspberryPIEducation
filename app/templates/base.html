@@ -6,7 +6,7 @@
   <title>{{ portal_title }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
   {% block body %}{% endblock %}
 </body>
 </html>

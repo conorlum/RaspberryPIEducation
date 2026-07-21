@@ -15,6 +15,17 @@ def create_app():
     app.config["CONTENT_DIR"] = os.environ.get(
         "CONTENT_DIR", str(BASE_DIR / "content" / "zim")
     )
+    app.config["LIBRARY_XML"] = os.environ.get(
+        "LIBRARY_XML", str(BASE_DIR / "content" / "library.xml")
+    )
+    app.config["KIWIX_PORT"] = int(os.environ.get("KIWIX_PORT", 8080))
+    app.config["RESULTS_PER_ZIM"] = int(os.environ.get("RESULTS_PER_ZIM", 5))
+    app.config["KIWIX_VIEWER_URL_TEMPLATE"] = os.environ.get(
+        "KIWIX_VIEWER_URL_TEMPLATE", "/kiwix/viewer#{name}"
+    )
+    app.config["KIWIX_ARTICLE_URL_TEMPLATE"] = os.environ.get(
+        "KIWIX_ARTICLE_URL_TEMPLATE", "/kiwix/viewer#{name}/{path}"
+    )
 
     from app.routes import bp
 

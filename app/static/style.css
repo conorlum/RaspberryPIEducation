@@ -45,3 +45,138 @@ h1 {
   padding: 0.1rem 0.4rem;
   border-radius: 0.25rem;
 }
+
+body.library-page {
+  display: block;
+  align-items: initial;
+  justify-content: initial;
+  text-align: left;
+}
+
+.library {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.library-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.home-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.library-search {
+  min-width: 16rem;
+  padding: 0.6rem 1rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  color: #f1f5f9;
+  font-size: 1rem;
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1.25rem;
+}
+
+.library-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #1e293b;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.library-card:hover,
+.library-card:focus-visible {
+  border-color: #2563eb;
+}
+
+.library-card-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f172a;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.library-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+}
+
+.library-card-desc {
+  margin: 0 0 0.5rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.library-card-meta {
+  margin: 0;
+  display: flex;
+  gap: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.search-group {
+  margin-bottom: 2rem;
+}
+
+.search-group h2 {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.search-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.search-group li a {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: #1e293b;
+  border-radius: 0.5rem;
+  color: #f1f5f9;
+  text-decoration: none;
+}
+
+.search-group li a:hover,
+.search-group li a:focus-visible {
+  color: #fff;
+  background: #263449;
+}
+
+.library-empty-filtered {
+  color: #94a3b8;
+  text-align: center;
+  padding: 2rem;
+}

@@ -1,6 +1,10 @@
 from pathlib import Path
+from urllib.parse import quote
 
-from flask import Blueprint, current_app, redirect, render_template, url_for
+from flask import Blueprint, current_app, jsonify, redirect, render_template, request, url_for
+
+from app.kiwix_client import suggest
+from app.library import load_library
 
 bp = Blueprint("portal", __name__)
 
@@ -27,6 +31,54 @@ def index():
         portal_title=current_app.config["PORTAL_TITLE"],
         has_content=has_content,
     )
+
+
+@bp.route("/library")
+def library():
+    books = load_library(current_app.config["LIBRARY_XML"])
+    template = current_app.config["KIWIX_VIEWER_URL_TEMPLATE"]
+    entries = [
+        {"book": book, "viewer_url": template.format(name=quote(book.name))}
+        for book in books
+    ]
+    return render_template(
+        "library.html",
+        portal_title=current_app.config["PORTAL_TITLE"],
+        entries=entries,
+    )
+
+
+@bp.route("/api/search-suggest")
+def search_suggest():
+    term = request.args.get("q", "")
+    if not term.strip():
+        return jsonify({"groups": []})
+
+    books = load_library(current_app.config["LIBRARY_XML"])
+    base_url = f"http://127.0.0.1:{current_app.config['KIWIX_PORT']}"
+    count = current_app.config["RESULTS_PER_ZIM"]
+    article_template = current_app.config["KIWIX_ARTICLE_URL_TEMPLATE"]
+
+    groups = []
+    for book in books:
+        articles = suggest(base_url, book.name, term, count)
+        if not articles:
+            continue
+        groups.append(
+            {
+                "book_title": book.title,
+                "articles": [
+                    {
+                        "title": a["title"],
+                        "url": article_template.format(
+                            name=quote(book.name), path=quote(a["path"])
+                        ),
+                    }
+                    for a in articles
+                ],
+            }
+        )
+    return jsonify({"groups": groups})
 
 
 def _redirect_to_home(**_kwargs):

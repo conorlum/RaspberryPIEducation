@@ -5,7 +5,7 @@
   <p class="tagline">Offline education, no internet required.</p>
 
   {% if has_content %}
-    <a class="library-link" href="/kiwix/">Browse the library</a>
+    <a class="library-link" href="{{ url_for('portal.library') }}">Browse the library</a>
   {% else %}
     <p class="empty-state">
       No content installed yet. Add <code>.zim</code> files to

@@ -6,7 +6,8 @@ After=network.target
 Type=simple
 User=@APP_USER@
 WorkingDirectory=@APP_DIR@
-ExecStart=/usr/bin/kiwix-serve --port=8080 --monitorLibrary @APP_DIR@/content/zim
+ExecStartPre=@APP_DIR@/setup/kiwix-library-refresh.sh
+ExecStart=/usr/bin/kiwix-serve --port=8080 --monitorLibrary --library @APP_DIR@/content/library.xml
 Restart=on-failure
 RestartSec=2
 
