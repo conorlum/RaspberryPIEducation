@@ -7,7 +7,7 @@ Type=simple
 User=@APP_USER@
 WorkingDirectory=@APP_DIR@
 ExecStartPre=@APP_DIR@/setup/kiwix-library-refresh.sh
-ExecStart=/usr/bin/kiwix-serve --port=8080 --monitorLibrary --library @APP_DIR@/content/library.xml
+ExecStart=/usr/bin/kiwix-serve --port=8080 --monitorLibrary --urlRootLocation /kiwix --library @APP_DIR@/content/library.xml
 Restart=on-failure
 RestartSec=2
 

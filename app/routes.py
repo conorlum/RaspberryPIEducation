@@ -55,7 +55,10 @@ def search_suggest():
         return jsonify({"groups": []})
 
     books = load_library(current_app.config["LIBRARY_XML"])
-    base_url = f"http://127.0.0.1:{current_app.config['KIWIX_PORT']}"
+    base_url = (
+        f"http://127.0.0.1:{current_app.config['KIWIX_PORT']}"
+        f"{current_app.config['KIWIX_URL_ROOT']}"
+    )
     count = current_app.config["RESULTS_PER_ZIM"]
     article_template = current_app.config["KIWIX_ARTICLE_URL_TEMPLATE"]
 

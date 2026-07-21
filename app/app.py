@@ -19,6 +19,11 @@ def create_app():
         "LIBRARY_XML", str(BASE_DIR / "content" / "library.xml")
     )
     app.config["KIWIX_PORT"] = int(os.environ.get("KIWIX_PORT", 8080))
+    # kiwix-serve is started with --urlRootLocation matching this, so it
+    # both expects requests prefixed with it and generates its own internal
+    # links (content/search/viewer) the same way. Must stay in sync with
+    # setup/systemd/kiwix-serve.service's --urlRootLocation value.
+    app.config["KIWIX_URL_ROOT"] = os.environ.get("KIWIX_URL_ROOT", "/kiwix")
     app.config["RESULTS_PER_ZIM"] = int(os.environ.get("RESULTS_PER_ZIM", 5))
     app.config["KIWIX_VIEWER_URL_TEMPLATE"] = os.environ.get(
         "KIWIX_VIEWER_URL_TEMPLATE", "/kiwix/viewer#{name}"

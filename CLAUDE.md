@@ -81,15 +81,25 @@ device on hotspot -> nginx :80 -> /kiwix/*  -> kiwix-serve :8080 (serves *.zim f
   `content/library.xml` (plain metadata via stdlib `ElementTree` — no new dependency, and
   `app/` still never opens ZIM files directly) to render a card per installed ZIM. Live
   search (`/api/search-suggest`, backed by `app/kiwix_client.py`) calls kiwix-serve's own
-  `/suggest` endpoint directly on `127.0.0.1:<KIWIX_PORT>` once per installed ZIM —
-  bypassing nginx/the browser entirely, which sidesteps the sub-path proxy bugs that broke
-  kiwix-serve's stock search — and caps results per ZIM via `RESULTS_PER_ZIM` so one large
-  ZIM (e.g. a full Wikipedia dump) can't flood out results from smaller ones. Card/article
-  links are built from `KIWIX_VIEWER_URL_TEMPLATE`/`KIWIX_ARTICLE_URL_TEMPLATE` — these are
-  **unverified assumptions** (no live Pi/ZIM was available while building this) about
-  kiwix-serve's per-book viewer URL scheme; if cards or search results 404 or open the
-  wrong book on real hardware, adjust those two settings in `config/settings.env` rather
-  than template/route code.
+  `/suggest` endpoint directly on `127.0.0.1:<KIWIX_PORT><KIWIX_URL_ROOT>` once per
+  installed ZIM — bypassing nginx/the browser entirely — and caps results per ZIM via
+  `RESULTS_PER_ZIM` so one large ZIM (e.g. a full Wikipedia dump) can't flood out results
+  from smaller ones. Card/article links are built from
+  `KIWIX_VIEWER_URL_TEMPLATE`/`KIWIX_ARTICLE_URL_TEMPLATE`.
+
+  **kiwix-serve must be told its own sub-path, or its self-generated links 404.** This bit
+  real hardware: kiwix-serve (both its stock welcome page originally, and this app's first
+  cut of `/library`) generates absolute in-page links like `/content/<book>` assuming it's
+  mounted at the true root `/`. Proxied under `/kiwix/` with the prefix stripped (the
+  original nginx config), those links 404 the moment you click into a book. The fix is
+  kiwix-serve's own `-r`/`--urlRootLocation` flag: `setup/systemd/kiwix-serve.service`
+  starts it with `--urlRootLocation /kiwix`, and `setup/nginx/rachel.conf`'s `/kiwix/`
+  location proxies with **no trailing slash** on `proxy_pass` (so nginx forwards the full
+  `/kiwix/...` path instead of stripping it) — the two must agree. `KIWIX_URL_ROOT` in
+  `app/app.py`/`config/settings.env` mirrors the same value so Flask's direct
+  server-to-server calls to kiwix-serve (bypassing nginx) hit the right path too. If you
+  ever change the mount path, update all three in lockstep: the systemd unit's
+  `--urlRootLocation`, the nginx location block, and `KIWIX_URL_ROOT`.
 
 ### Captive portal mechanism (the trickiest part — read before touching hotspot/routing code)
 

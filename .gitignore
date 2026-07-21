@@ -3,5 +3,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 content/zim/*.zim
+content/library.xml
 config/settings.env
 *.log
