@@ -14,6 +14,10 @@ work on older Raspberry Pi OS releases that use dhcpcd/hostapd instead.
 This repo is meant to be cloned onto multiple Pis via `setup/install.sh` to replicate the
 same setup on each one — see "Deploying to a Pi" below.
 
+**Status:** deployed to a real Pi and confirmed working, including the `/library` page
+and its live cross-ZIM search (see the Architecture section below for how that's built,
+and two non-obvious kiwix-serve deployment gotchas it took real hardware to surface).
+
 ## Commands
 
 ```
@@ -100,6 +104,16 @@ device on hotspot -> nginx :80 -> /kiwix/*  -> kiwix-serve :8080 (serves *.zim f
   server-to-server calls to kiwix-serve (bypassing nginx) hit the right path too. If you
   ever change the mount path, update all three in lockstep: the systemd unit's
   `--urlRootLocation`, the nginx location block, and `KIWIX_URL_ROOT`.
+
+  **Book identifiers come from the ZIM filename, not `library.xml`'s `name` attribute.**
+  Also confirmed on real hardware: kiwix-serve routes `/content`, `/suggest`, `/viewer`
+  etc. by the ZIM's filename stem (e.g. `wikipedia_en_all_mini_2026-06`), which can differ
+  from `library.xml`'s `name` metadata attribute (e.g. `wikipedia_en_all` — the same book
+  without its flavour/date suffix). `app/library.py`'s `_parse_book` builds each `Book`'s
+  identifier from `Path(path).stem` first, falling back to `name`/`id` only if `path` is
+  missing — don't swap that priority back, it was the second real bug found after the
+  `urlRootLocation` fix above (the first made links stop 404ing; this one made them point
+  at the right book).
 
 ### Captive portal mechanism (the trickiest part — read before touching hotspot/routing code)
 
