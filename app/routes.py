@@ -48,6 +48,16 @@ def library():
     )
 
 
+@bp.route("/search")
+def search():
+    books = load_library(current_app.config["LIBRARY_XML"])
+    return render_template(
+        "search.html",
+        portal_title=current_app.config["PORTAL_TITLE"],
+        has_books=bool(books),
+    )
+
+
 @bp.route("/api/search-suggest")
 def search_suggest():
     term = request.args.get("q", "")

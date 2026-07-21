@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block body_class %}library-page{% endblock %}
+{% block body %}
+<main class="library">
+  <header class="library-header">
+    <h1><a class="home-link" href="{{ url_for('portal.index') }}">{{ portal_title }}</a></h1>
+    {% if has_books %}
+      <a class="library-link" href="{{ url_for('portal.library') }}">Browse library</a>
+    {% endif %}
+  </header>
+
+  {% if has_books %}
+    <input type="search" id="search-input" class="library-search search-input"
+           placeholder="Search articles (e.g. octopus)..." autocomplete="off" autofocus>
+    <p class="search-prompt" id="search-prompt">Start typing to search across every installed library.</p>
+    <div class="search-results" id="search-results" hidden></div>
+  {% else %}
+    <p class="empty-state">
+      No content installed yet. Add <code>.zim</code> files to
+      <code>content/zim/</code> and restart <code>kiwix-serve</code>.
+    </p>
+  {% endif %}
+</main>
+<script src="{{ url_for('static', filename='search.js') }}"></script>
+{% endblock %}

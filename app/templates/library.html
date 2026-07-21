@@ -5,13 +5,12 @@
   <header class="library-header">
     <h1><a class="home-link" href="{{ url_for('portal.index') }}">{{ portal_title }}</a></h1>
     {% if entries %}
-      <input type="search" id="library-search" class="library-search"
-             placeholder="Search articles (e.g. octopus)..." autocomplete="off">
+      <a class="library-link" href="{{ url_for('portal.search') }}">Search</a>
     {% endif %}
   </header>
 
   {% if entries %}
-    <div class="library-grid" id="browse-grid">
+    <div class="library-grid">
       {% for entry in entries %}
         {% set book = entry.book %}
         <a class="library-card" href="{{ entry.viewer_url }}">
@@ -33,7 +32,6 @@
         </a>
       {% endfor %}
     </div>
-    <div class="search-results" id="search-results" hidden></div>
   {% else %}
     <p class="empty-state">
       No content installed yet. Add <code>.zim</code> files to
@@ -41,5 +39,4 @@
     </p>
   {% endif %}
 </main>
-<script src="{{ url_for('static', filename='library.js') }}"></script>
 {% endblock %}

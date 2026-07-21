@@ -1,8 +1,8 @@
 (function () {
-  var input = document.getElementById("library-search");
-  var browseGrid = document.getElementById("browse-grid");
+  var input = document.getElementById("search-input");
+  var prompt = document.getElementById("search-prompt");
   var resultsPanel = document.getElementById("search-results");
-  if (!input || !browseGrid || !resultsPanel) return;
+  if (!input || !prompt || !resultsPanel) return;
 
   var debounceTimer = null;
   var requestId = 0;
@@ -15,7 +15,7 @@
       requestId += 1; // invalidate any in-flight search
       resultsPanel.hidden = true;
       resultsPanel.innerHTML = "";
-      browseGrid.hidden = false;
+      prompt.hidden = false;
       return;
     }
 
@@ -39,7 +39,7 @@
   }
 
   function renderResults(groups) {
-    browseGrid.hidden = true;
+    prompt.hidden = true;
     resultsPanel.hidden = false;
     resultsPanel.innerHTML = "";
 

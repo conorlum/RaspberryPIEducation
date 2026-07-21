@@ -95,6 +95,24 @@ def test_library_route_no_broken_img_without_favicon(client, tmp_path):
     assert b"<img" not in response.data
 
 
+def test_search_route_empty_state(client):
+    response = client.get("/search")
+    assert response.status_code == 200
+    assert b"No content installed yet" in response.data
+
+
+def test_search_route_renders_input_and_browse_link(client, tmp_path):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(SAMPLE_LIBRARY_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    response = client.get("/search")
+
+    assert response.status_code == 200
+    assert b'id="search-input"' in response.data
+    assert b'href="/library"' in response.data
+
+
 def test_search_suggest_empty_query_returns_no_groups(client, monkeypatch):
     def _boom(*args, **kwargs):
         raise AssertionError("suggest() should not be called for an empty query")
