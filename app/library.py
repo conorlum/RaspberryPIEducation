@@ -39,13 +39,18 @@ def load_library(library_xml_path):
 
 def _parse_book(el):
     attrs = el.attrib
+    # kiwix-serve routes /content, /suggest, /viewer etc. by the ZIM's
+    # filename stem (confirmed against a real kiwix-serve instance), not by
+    # the `name` metadata attribute - the two can differ (e.g. library.xml's
+    # name="wikipedia_en_all" for a file actually served as
+    # "wikipedia_en_all_mini_2026-06"). The filename stem must come first.
     name = (
-        attrs.get("name")
+        Path(attrs.get("path", "")).stem
+        or attrs.get("name")
         or attrs.get("id")
-        or Path(attrs.get("path", "")).stem
         or "unknown"
     )
-    title = attrs.get("title") or name
+    title = attrs.get("title") or attrs.get("name") or name
     tags_raw = attrs.get("tags", "")
     tags = [t.strip() for t in _TAG_SPLIT_RE.split(tags_raw) if t.strip()]
 

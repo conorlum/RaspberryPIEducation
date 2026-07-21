@@ -61,6 +61,27 @@ def test_parses_two_books_with_expected_fields(tmp_path):
     assert second.favicon_data_uri is None
 
 
+def test_name_prefers_zim_filename_stem_over_metadata_name(tmp_path):
+    # Real-world case (confirmed against a running kiwix-serve): library.xml's
+    # `name` attribute and the identifier kiwix-serve actually routes
+    # /content, /suggest, /viewer etc. by can differ - the filename stem
+    # wins, since that's what kiwix-serve uses.
+    xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<library version="20110515">
+  <book id="abc123" path="zim/wikipedia_en_all_mini_2026-06.zim" name="wikipedia_en_all"
+        title="Wikipedia" description="The free encyclopedia" language="eng">
+  </book>
+</library>
+"""
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(xml, encoding="utf-8")
+
+    books = load_library(library_xml)
+    assert len(books) == 1
+    assert books[0].name == "wikipedia_en_all_mini_2026-06"
+    assert books[0].title == "Wikipedia"  # display title still uses metadata title
+
+
 def test_malformed_favicon_data_yields_none_not_exception(tmp_path):
     xml = """<?xml version="1.0" encoding="UTF-8" ?>
 <library version="20110515">
