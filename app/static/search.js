@@ -6,7 +6,6 @@
   var resultsPanel = document.getElementById("search-results");
   if (!form || !input || !prompt || !status || !resultsPanel) return;
 
-  var debounceTimer = null;
   var requestId = 0;
 
   function showPrompt() {
@@ -22,33 +21,17 @@
     resultsPanel.hidden = true;
   }
 
-  input.addEventListener("input", function () {
-    var term = input.value.trim();
-    clearTimeout(debounceTimer);
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
 
+    var term = input.value.trim();
     if (!term) {
       requestId += 1; // invalidate any in-flight search
       showPrompt();
       return;
     }
 
-    debounceTimer = setTimeout(function () {
-      runSearch(term);
-    }, 250);
-  });
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    clearTimeout(debounceTimer);
-
-    var term = input.value.trim();
-    if (!term) {
-      requestId += 1;
-      showPrompt();
-      return;
-    }
-
-    runSearch(term); // fires immediately, bypassing the debounce wait
+    runSearch(term);
   });
 
   function runSearch(term) {
