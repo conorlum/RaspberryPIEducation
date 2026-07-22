@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from urllib.parse import quote
 
@@ -65,6 +66,9 @@ def search_suggest():
         return jsonify({"groups": []})
 
     books = load_library(current_app.config["LIBRARY_XML"])
+    if not books:
+        return jsonify({"groups": []})
+
     base_url = (
         f"http://127.0.0.1:{current_app.config['KIWIX_PORT']}"
         f"{current_app.config['KIWIX_URL_ROOT']}"
@@ -72,9 +76,17 @@ def search_suggest():
     count = current_app.config["RESULTS_PER_ZIM"]
     article_template = current_app.config["KIWIX_ARTICLE_URL_TEMPLATE"]
 
+    # Query every book's kiwix-serve /suggest endpoint concurrently rather than
+    # one at a time - each call blocks on its own network I/O, so total latency
+    # would otherwise be the sum of every book's response time instead of the
+    # slowest one.
+    with ThreadPoolExecutor(max_workers=min(len(books), 8)) as executor:
+        results = list(
+            executor.map(lambda book: suggest(base_url, book.name, term, count), books)
+        )
+
     groups = []
-    for book in books:
-        articles = suggest(base_url, book.name, term, count)
+    for book, articles in zip(books, results):
         if not articles:
             continue
         groups.append(

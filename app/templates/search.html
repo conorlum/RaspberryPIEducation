@@ -10,9 +10,15 @@
   </header>
 
   {% if has_books %}
-    <input type="search" id="search-input" class="library-search search-input"
-           placeholder="Search articles (e.g. octopus)..." autocomplete="off" autofocus>
+    <form id="search-form" class="search-form">
+      <input type="search" id="search-input" class="library-search search-input"
+             placeholder="Search articles (e.g. octopus)..." autocomplete="off" autofocus>
+      <button type="submit" class="library-link search-submit">Search</button>
+    </form>
     <p class="search-prompt" id="search-prompt">Start typing to search across every installed library.</p>
+    <div class="search-status" id="search-status" hidden>
+      <span class="spinner" aria-hidden="true"></span> Searching...
+    </div>
     <div class="search-results" id="search-results" hidden></div>
   {% else %}
     <p class="empty-state">
