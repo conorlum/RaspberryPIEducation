@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Idempotent installer - run this on any Raspberry Pi (4 Model B, Raspberry
-# Pi OS Bookworm) to stand up the full stack: nginx, the Flask portal,
-# kiwix-serve, and the WiFi hotspot. Safe to re-run after a `git pull` to
-# pick up changes.
+# Idempotent installer - run this on any Raspberry Pi 4 Model B with
+# NetworkManager-based networking (Raspberry Pi OS Bookworm+, or plain
+# Debian - the real deployed Pi runs Debian 13) to stand up the full stack:
+# nginx, the Flask portal, kiwix-serve, and the WiFi hotspot. Safe to re-run
+# after a `git pull` to pick up changes.
 #
 #   git clone <repo-url> && cd RaspberryPI
 #   cp config/settings.example.env config/settings.env   # edit SSID/password
@@ -15,7 +16,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 if ! command -v nmcli >/dev/null; then
-  echo "nmcli not found - this installer targets Raspberry Pi OS Bookworm+ (NetworkManager)." >&2
+  echo "nmcli not found - this installer requires NetworkManager (Raspberry Pi OS Bookworm+ or Debian with NetworkManager)." >&2
   exit 1
 fi
 
@@ -61,6 +62,9 @@ set -a
 source "$APP_DIR/config/settings.env"
 set +a
 "$SCRIPT_DIR/hotspot.sh"
+
+echo "==> Hardening for offline / power-loss-prone deployment"
+"$SCRIPT_DIR/harden-for-offline.sh"
 
 echo "==> Starting services"
 systemctl daemon-reload

@@ -1,6 +1,8 @@
 [Unit]
 Description=Kiwix content server (serves .zim files from content/zim)
 After=network.target
+# No limit on restart attempts - see rachel-portal.service for why.
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple

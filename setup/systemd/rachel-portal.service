@@ -1,6 +1,11 @@
 [Unit]
 Description=RACHEL portal (Flask via gunicorn)
 After=network.target
+# No limit on restart attempts - this Pi runs unattended with unreliable
+# power, so a crash-loop must keep retrying forever rather than giving up
+# and staying down (the default StartLimitBurst=5-in-10s would do exactly
+# that, with nobody there to run `systemctl restart` afterward).
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple

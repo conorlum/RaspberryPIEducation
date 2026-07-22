@@ -7,12 +7,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A RACHEL-style (rachel.worldpossible.org) offline education server for Raspberry Pi. The
 Pi broadcasts its own WiFi hotspot; connecting devices get a captive-portal popup into a
 library of offline content (Wikipedia, Khan Academy, etc. via Kiwix ZIM files). No internet
-required. Target hardware is a Raspberry Pi 4 Model B running Raspberry Pi OS Bookworm
-(NetworkManager-based networking) — the WiFi hotspot setup depends on `nmcli` and will not
-work on older Raspberry Pi OS releases that use dhcpcd/hostapd instead.
+required. Target hardware is a Raspberry Pi 4 Model B with NetworkManager-based networking
+— the WiFi hotspot setup depends on `nmcli` and will not work on older setups (Raspberry
+Pi OS releases before Bookworm, for example) that use dhcpcd/hostapd instead. The real
+deployed Pi runs plain Debian 13 (trixie), not Raspberry Pi OS — NetworkManager/`nmcli`
+work identically either way, so this doesn't change anything about the install steps, but
+don't assume Raspberry Pi-OS-specific tooling (e.g. `raspi-config`, `fake-hwclock` as a
+default-installed package) is present without checking first.
 
 This repo is meant to be cloned onto multiple Pis via `setup/install.sh` to replicate the
 same setup on each one — see "Deploying to a Pi" below.
+
+**Deployment conditions:** the real deployment target is an offline site with no WiFi/
+internet access (and no realistic way to get any once the Pi is there) and unreliable
+power that can cut out without warning. `setup/harden-for-offline.sh` (called from
+`install.sh`) exists specifically for this: it disables boot-time services that depend on
+internet access this Pi will never have (`NetworkManager-wait-online`, `apt-daily*`,
+`cloud-init` once its one-time provisioning is done — each either wastes boot time trying
+to reach the internet or, in cloud-init's case, has literally nothing left to do), installs
+`fake-hwclock` (no RTC on this hardware, so without it the clock has no way to persist
+across a power-loss reboot with no NTP available), and caps journald's on-disk log size
+(less SD card write volume = smaller corruption window during a power cut).
+`setup/systemd/rachel-portal.service` and `kiwix-serve.service` also both set
+`StartLimitIntervalSec=0` so a crash-looping service keeps retrying forever instead of
+systemd permanently giving up after a handful of fast failures - there's nobody on-site to
+run `systemctl restart` if that happens. `fsck.repair=yes` is already present in the stock
+image's boot cmdline (auto-repairs the root filesystem after power-loss corruption instead
+of requiring manual intervention) - this project doesn't need to add that itself, just
+verify it's still present if provisioning a Pi from a different base image.
+
+The single highest-leverage mitigation against unrecoverable SD card corruption **isn't
+software**: take a full SD card image of the working Pi before it ships to its deployment
+site, and bring a spare pre-imaged card. No `fsck.repair`/journald tuning/restart-limit fix
+can substitute for being able to swap in a known-good card with zero internet required.
 
 **Status:** deployed to a real Pi and confirmed working, including the `/library` page
 and its live cross-ZIM search (see the Architecture section below for how that's built,
