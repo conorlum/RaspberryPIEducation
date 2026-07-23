@@ -80,7 +80,7 @@ def search_suggest():
     # one at a time - each call blocks on its own network I/O, so total latency
     # would otherwise be the sum of every book's response time instead of the
     # slowest one.
-    with ThreadPoolExecutor(max_workers=min(len(books), 8)) as executor:
+    with ThreadPoolExecutor(max_workers=min(len(books), 32)) as executor:
         results = list(
             executor.map(lambda book: suggest(base_url, book.name, term, count), books)
         )
