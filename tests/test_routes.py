@@ -267,3 +267,32 @@ def test_search_suggest_caps_priority_books_before_others(client, tmp_path, monk
     # non-priority book's results appear; its 3rd result is never included.
     # The two non-priority books are then round-robined.
     assert titles == ["Khan 1", "Khan 2", "A 1", "B 1", "A 2"]
+
+
+LIBRARY_ORDER_XML = """<?xml version="1.0" encoding="UTF-8" ?>
+<library version="20110515">
+  <book id="a" name="zzz_book" title="Zebra Books" language="spa" articleCount="1">
+  </book>
+  <book id="b" name="khanacademy_es_test" title="Khan Academy" language="spa" articleCount="1">
+  </book>
+  <book id="c" name="aaa_book" title="Aardvark Facts" language="spa" articleCount="1">
+  </book>
+</library>
+"""
+
+
+def test_library_route_orders_priority_books_then_alphabetical(client, tmp_path):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(LIBRARY_ORDER_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    response = client.get("/library")
+    body = response.data.decode("utf-8")
+
+    # Document order is Zebra, Khan, Aardvark - the rendered order should be
+    # the priority book first (regardless of its position in the XML), then
+    # the two non-priority books alphabetically by title, not document order.
+    khan_pos = body.index("Khan Academy")
+    aardvark_pos = body.index("Aardvark Facts")
+    zebra_pos = body.index("Zebra Books")
+    assert khan_pos < aardvark_pos < zebra_pos

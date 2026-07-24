@@ -66,6 +66,7 @@ def about():
 @bp.route("/library")
 def library():
     books = load_library(current_app.config["LIBRARY_XML"])
+    books = sorted(books, key=_library_sort_key)
     template = current_app.config["KIWIX_VIEWER_URL_TEMPLATE"]
     entries = [
         {"book": book, "viewer_url": template.format(name=quote(book.name))}
@@ -149,6 +150,15 @@ def _priority_rank(book_name):
         if book_name.startswith(prefix):
             return rank
     return None
+
+
+def _library_sort_key(book):
+    """Same priority tier as search (see _PRIORITY_NAME_PREFIXES), in that
+    order, followed by every other book alphabetically by title."""
+    rank = _priority_rank(book.name)
+    if rank is not None:
+        return (0, rank)
+    return (1, book.title.lower())
 
 
 def _interleave_results(book_articles):
