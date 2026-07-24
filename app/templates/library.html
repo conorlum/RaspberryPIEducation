@@ -25,8 +25,10 @@
             <h2>{{ book.title }}</h2>
             {% if book.description %}<p class="library-card-desc">{{ book.description }}</p>{% endif %}
             <p class="library-card-meta">
-              {% if book.language %}<span>{{ book.language }}</span>{% endif %}
-              {% if book.article_count %}<span>{{ "{:,}".format(book.article_count) }} articles</span>{% endif %}
+              {% if book.language %}
+                <span>{% if book.language.split(',')|length > 3 %}Muchos idiomas{% else %}{{ book.language }}{% endif %}</span>
+              {% endif %}
+              {% if book.article_count %}<span>{{ "{:,}".format(book.article_count).replace(",", ".") }} artículos</span>{% endif %}
             </p>
           </div>
         </a>
