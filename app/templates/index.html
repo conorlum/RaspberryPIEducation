@@ -2,10 +2,11 @@
 {% block body %}
 <main class="portal">
   <h1>{{ portal_title }}</h1>
-  <p class="tagline">Offline education, no internet required.</p>
+  <p class="tagline">Educación sin conexión, a tu alcance.</p>
+  <a class="about-link" href="{{ url_for('portal.about') }}">Cómo funciona, aprende más</a>
 
   {% if has_content %}
-    <a class="library-link" href="{{ url_for('portal.library') }}">Browse the library</a>
+    <a class="library-link" href="{{ url_for('portal.library') }}">Explorar la biblioteca</a>
   {% else %}
     <p class="empty-state">
       No content installed yet. Add <code>.zim</code> files to

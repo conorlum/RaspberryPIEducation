@@ -58,7 +58,7 @@
     if (!groups.length) {
       var empty = document.createElement("p");
       empty.className = "library-empty-filtered";
-      empty.textContent = "No matching articles.";
+      empty.textContent = "No se encontraron artículos.";
       resultsPanel.appendChild(empty);
       return;
     }

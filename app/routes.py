@@ -34,6 +34,14 @@ def index():
     )
 
 
+@bp.route("/about")
+def about():
+    return render_template(
+        "about.html",
+        portal_title=current_app.config["PORTAL_TITLE"],
+    )
+
+
 @bp.route("/library")
 def library():
     books = load_library(current_app.config["LIBRARY_XML"])

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block body_class %}library-page{% endblock %}
+{% block body %}
+<main class="library about">
+  <header class="library-header">
+    <h1><a class="home-link" href="{{ url_for('portal.index') }}">{{ portal_title }}</a></h1>
+  </header>
+
+  <h2>¿Cómo funciona esta caja?</h2>
+
+  <p>Esta caja es una pequeña computadora que crea su propia señal de wifi,
+  como un router.</p>
+
+  <p>No necesita internet porque toda la información — como Wikipedia, Khan
+  Academy, videos de TED y mucho más — ya está guardada adentro, en una
+  tarjeta de memoria.</p>
+
+  <p>Cuando te conectas a esta wifi, tu teléfono o computadora habla
+  directamente con la caja. Así puedes leer, ver videos y aprender sin
+  gastar datos ni necesitar internet.</p>
+
+  <p>¡Puedes usarla todas las veces que quieras, sin límite!</p>
+
+  <a class="library-link" href="{{ url_for('portal.index') }}">← Volver al inicio</a>
+</main>
+{% endblock %}

@@ -5,19 +5,19 @@
   <header class="library-header">
     <h1><a class="home-link" href="{{ url_for('portal.index') }}">{{ portal_title }}</a></h1>
     {% if has_books %}
-      <a class="library-link" href="{{ url_for('portal.library') }}">Browse library</a>
+      <a class="library-link" href="{{ url_for('portal.library') }}">Explorar la Biblioteca</a>
     {% endif %}
   </header>
 
   {% if has_books %}
     <form id="search-form" class="search-form">
       <input type="search" id="search-input" class="library-search search-input"
-             placeholder="Search articles (e.g. octopus)..." autocomplete="off">
-      <button type="submit" class="library-link search-submit">Search</button>
+             placeholder="Buscar artículos (ej. pulpo)..." autocomplete="off">
+      <button type="submit" class="library-link search-submit">Buscar</button>
     </form>
-    <p class="search-prompt" id="search-prompt">Press Search (or Enter) to search across every installed library.</p>
+    <p class="search-prompt" id="search-prompt">Presiona Buscar (o Enter) para buscar en todas las bibliotecas instaladas.</p>
     <div class="search-status" id="search-status" hidden>
-      <span class="spinner" aria-hidden="true"></span> Searching...
+      <span class="spinner" aria-hidden="true"></span> Buscando...
     </div>
     <div class="search-results" id="search-results" hidden></div>
   {% else %}
