@@ -41,7 +41,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (thisRequest !== requestId) return; // a newer search already superseded this
-        renderResults(data.groups || []);
+        renderResults(data.results || []);
       })
       .catch(function () {
         if (thisRequest !== requestId) return;
@@ -49,13 +49,13 @@
       });
   }
 
-  function renderResults(groups) {
+  function renderResults(results) {
     prompt.hidden = true;
     status.hidden = true;
     resultsPanel.hidden = false;
     resultsPanel.innerHTML = "";
 
-    if (!groups.length) {
+    if (!results.length) {
       var empty = document.createElement("p");
       empty.className = "library-empty-filtered";
       empty.textContent = "No se encontraron artículos.";
@@ -63,25 +63,26 @@
       return;
     }
 
-    groups.forEach(function (group) {
-      var section = document.createElement("section");
-      section.className = "search-group";
+    var list = document.createElement("ul");
+    list.className = "search-results-list";
+    results.forEach(function (item) {
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = item.url;
 
-      var heading = document.createElement("h2");
-      heading.textContent = group.book_title;
-      section.appendChild(heading);
+      var title = document.createElement("span");
+      title.className = "search-result-title";
+      title.textContent = item.title;
 
-      var list = document.createElement("ul");
-      group.articles.forEach(function (article) {
-        var li = document.createElement("li");
-        var a = document.createElement("a");
-        a.href = article.url;
-        a.textContent = article.title;
-        li.appendChild(a);
-        list.appendChild(li);
-      });
-      section.appendChild(list);
-      resultsPanel.appendChild(section);
+      var source = document.createElement("span");
+      source.className = "search-result-source";
+      source.textContent = item.book_title;
+
+      a.appendChild(title);
+      a.appendChild(source);
+      li.appendChild(a);
+      list.appendChild(li);
     });
+    resultsPanel.appendChild(list);
   }
 })();

@@ -113,7 +113,7 @@ def test_search_route_renders_input_and_browse_link(client, tmp_path):
     assert b'href="/library"' in response.data
 
 
-def test_search_suggest_empty_query_returns_no_groups(client, monkeypatch):
+def test_search_suggest_empty_query_returns_no_results(client, monkeypatch):
     def _boom(*args, **kwargs):
         raise AssertionError("suggest() should not be called for an empty query")
 
@@ -122,10 +122,10 @@ def test_search_suggest_empty_query_returns_no_groups(client, monkeypatch):
     response = client.get("/api/search-suggest?q=")
 
     assert response.status_code == 200
-    assert json.loads(response.data) == {"groups": []}
+    assert json.loads(response.data) == {"results": []}
 
 
-def test_search_suggest_groups_results_per_book(client, tmp_path, monkeypatch):
+def test_search_suggest_returns_results_per_book(client, tmp_path, monkeypatch):
     library_xml = tmp_path / "library.xml"
     library_xml.write_text(SAMPLE_LIBRARY_XML, encoding="utf-8")
     client.application.config["LIBRARY_XML"] = str(library_xml)
@@ -140,12 +140,11 @@ def test_search_suggest_groups_results_per_book(client, tmp_path, monkeypatch):
     data = json.loads(response.data)
 
     assert data == {
-        "groups": [
+        "results": [
             {
                 "book_title": "Wikipedia (Octopus)",
-                "articles": [
-                    {"title": "Octopus", "url": "/kiwix/viewer#wikipedia_en_octopus/A/Octopus"}
-                ],
+                "title": "Octopus",
+                "url": "/kiwix/viewer#wikipedia_en_octopus/A/Octopus",
             }
         ]
     }
@@ -160,4 +159,46 @@ def test_search_suggest_omits_books_with_no_results(client, tmp_path, monkeypatc
 
     response = client.get("/api/search-suggest?q=octopus")
 
-    assert json.loads(response.data) == {"groups": []}
+    assert json.loads(response.data) == {"results": []}
+
+
+PRIORITY_AND_OTHER_LIBRARY_XML = """<?xml version="1.0" encoding="UTF-8" ?>
+<library version="20110515">
+  <book id="a" name="khanacademy_es_test" title="Khan Academy" language="spa" articleCount="1">
+  </book>
+  <book id="b" name="other_book_a" title="Other A" language="spa" articleCount="1">
+  </book>
+  <book id="c" name="other_book_b" title="Other B" language="spa" articleCount="1">
+  </book>
+</library>
+"""
+
+
+def test_search_suggest_caps_priority_books_before_others(client, tmp_path, monkeypatch):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(PRIORITY_AND_OTHER_LIBRARY_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    by_book = {
+        "khanacademy_es_test": [
+            {"title": "Khan 1", "path": "k1"},
+            {"title": "Khan 2", "path": "k2"},
+            {"title": "Khan 3", "path": "k3"},
+        ],
+        "other_book_a": [
+            {"title": "A 1", "path": "a1"},
+            {"title": "A 2", "path": "a2"},
+        ],
+        "other_book_b": [{"title": "B 1", "path": "b1"}],
+    }
+    monkeypatch.setattr(
+        routes, "suggest", lambda base_url, book_name, term, count: by_book[book_name]
+    )
+
+    response = client.get("/api/search-suggest?q=x")
+    titles = [item["title"] for item in json.loads(response.data)["results"]]
+
+    # Khan Academy (priority) contributes at most 2 results, both before any
+    # non-priority book's results appear; its 3rd result is never included.
+    # The two non-priority books are then round-robined.
+    assert titles == ["Khan 1", "Khan 2", "A 1", "B 1", "A 2"]

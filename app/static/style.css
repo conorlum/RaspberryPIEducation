@@ -197,17 +197,7 @@ body.library-page {
   overflow-wrap: anywhere;
 }
 
-.search-group {
-  margin-bottom: 2rem;
-}
-
-.search-group h2 {
-  font-size: 1rem;
-  color: #94a3b8;
-  margin-bottom: 0.5rem;
-}
-
-.search-group ul {
+.search-results-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -216,8 +206,11 @@ body.library-page {
   gap: 0.5rem;
 }
 
-.search-group li a {
-  display: block;
+.search-results-list li a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
   padding: 0.75rem 1rem;
   background: #1e293b;
   border-radius: 0.5rem;
@@ -225,10 +218,16 @@ body.library-page {
   text-decoration: none;
 }
 
-.search-group li a:hover,
-.search-group li a:focus-visible {
+.search-results-list li a:hover,
+.search-results-list li a:focus-visible {
   color: #fff;
   background: #263449;
+}
+
+.search-result-source {
+  flex-shrink: 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
 }
 
 .library-empty-filtered {
