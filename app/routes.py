@@ -23,9 +23,9 @@ _PRIORITY_NAME_PREFIXES = [
     "khanacademy_es",
     "phet_es",
     "ted_mul_ted-ed",
-    "medlineplus",
     "wikipedia_es_all",
     "wikipedia_en_all",
+    "medlineplus",
     "crashcourse_en",
 ]
 _PRIORITY_RESULT_CAP = 2
