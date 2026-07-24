@@ -10,7 +10,6 @@ if ! command -v nmcli >/dev/null; then
 fi
 
 : "${WIFI_SSID:?WIFI_SSID must be set (see config/settings.env)}"
-: "${WIFI_PASSWORD:?WIFI_PASSWORD must be set (see config/settings.env)}"
 
 WIFI_IFACE="${WIFI_IFACE:-wlan0}"
 CONNECTION_NAME="rachel-hotspot"
@@ -19,6 +18,7 @@ if nmcli connection show "$CONNECTION_NAME" >/dev/null 2>&1; then
   nmcli connection delete "$CONNECTION_NAME"
 fi
 
+# Open network (no WIFI_PASSWORD) - temporary, revisit before final deployment.
 nmcli connection add \
   type wifi \
   ifname "$WIFI_IFACE" \
@@ -27,9 +27,7 @@ nmcli connection add \
   ssid "$WIFI_SSID" \
   802-11-wireless.mode ap \
   802-11-wireless.band bg \
-  ipv4.method shared \
-  wifi-sec.key-mgmt wpa-psk \
-  wifi-sec.psk "$WIFI_PASSWORD"
+  ipv4.method shared
 
 # NetworkManager runs its own dnsmasq instance for shared connections
 # (default gateway/DNS on that interface is 10.42.0.1). Wildcarding every
