@@ -160,19 +160,18 @@ body.library-page {
 
 .library-card-search-link {
   align-self: flex-start;
-  margin: 0 1.25rem 1rem;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.8rem;
-  color: #93c5fd;
+  margin: 0 1.25rem 1.25rem;
+  padding: 0.4rem 0.9rem;
+  background: #2563eb;
+  color: #fff;
   text-decoration: none;
-  border: 1px solid #334155;
   border-radius: 0.4rem;
+  font-size: 0.85rem;
 }
 
 .library-card-search-link:hover,
 .library-card-search-link:focus-visible {
-  color: #fff;
-  border-color: #2563eb;
+  background: #1d4fd1;
 }
 
 .library-card-icon {
