@@ -118,6 +118,10 @@ body.library-page {
   font-size: 1.5rem;
 }
 
+.library-card-body {
+  min-width: 0;
+}
+
 .library-card h2 {
   margin: 0 0 0.35rem;
   font-size: 1.1rem;
@@ -136,9 +140,14 @@ body.library-page {
 .library-card-meta {
   margin: 0;
   display: flex;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
   color: #94a3b8;
   font-size: 0.8rem;
+}
+
+.library-card-meta span:first-child {
+  overflow-wrap: anywhere;
 }
 
 .search-group {
@@ -219,6 +228,10 @@ button.library-link {
   gap: 0.6rem;
   color: #94a3b8;
   padding: 3rem 2rem;
+}
+
+.search-status[hidden] {
+  display: none;
 }
 
 .spinner {
