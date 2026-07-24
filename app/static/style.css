@@ -46,6 +46,34 @@ h1 {
   border-radius: 0.25rem;
 }
 
+.reconnect-help {
+  margin-top: 2.5rem;
+  padding: 1rem 1.25rem;
+  background: #1e293b;
+  border-radius: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.reconnect-help p {
+  margin: 0 0 0.5rem;
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.reconnect-help ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+.reconnect-help code {
+  background: #0f172a;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  color: #f1f5f9;
+}
+
 body.library-page {
   display: block;
   align-items: initial;
