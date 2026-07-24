@@ -82,7 +82,17 @@ def test_library_route_renders_book_card(client, tmp_path):
 
     assert response.status_code == 200
     assert b"Wikipedia (Octopus)" in response.data
-    assert b"/kiwix/viewer#wikipedia_en_octopus" in response.data
+    assert b"/kiwix/content/wikipedia_en_octopus" in response.data
+
+
+def test_library_route_renders_search_this_book_link(client, tmp_path):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(SAMPLE_LIBRARY_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    response = client.get("/library")
+
+    assert b"/search?book=wikipedia_en_octopus" in response.data
 
 
 def test_library_route_no_broken_img_without_favicon(client, tmp_path):
@@ -111,6 +121,18 @@ def test_search_route_renders_input_and_browse_link(client, tmp_path):
     assert response.status_code == 200
     assert b'id="search-input"' in response.data
     assert b'href="/library"' in response.data
+    assert b'id="search-book"' in response.data
+    assert b'value="wikipedia_en_octopus"' in response.data
+
+
+def test_search_route_preselects_book_from_query_param(client, tmp_path):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(SAMPLE_LIBRARY_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    response = client.get("/search?book=wikipedia_en_octopus")
+
+    assert b'value="wikipedia_en_octopus" selected' in response.data
 
 
 def test_search_suggest_empty_query_returns_no_results(client, monkeypatch):
@@ -144,10 +166,53 @@ def test_search_suggest_returns_results_per_book(client, tmp_path, monkeypatch):
             {
                 "book_title": "Wikipedia (Octopus)",
                 "title": "Octopus",
-                "url": "/kiwix/viewer#wikipedia_en_octopus/A/Octopus",
+                "url": "/kiwix/content/wikipedia_en_octopus/A/Octopus",
             }
         ]
     }
+
+
+def test_search_suggest_book_filter_queries_only_that_book(client, tmp_path, monkeypatch):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(PRIORITY_AND_OTHER_LIBRARY_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    queried_books = []
+
+    def _suggest(base_url, book_name, term, count):
+        queried_books.append(book_name)
+        if book_name == "other_book_a":
+            return [
+                {"title": "A 1", "path": "a1"},
+                {"title": "A 2", "path": "a2"},
+            ]
+        return []
+
+    monkeypatch.setattr(routes, "suggest", _suggest)
+
+    response = client.get("/api/search-suggest?q=x&book=other_book_a")
+    data = json.loads(response.data)
+
+    # Only the requested book is queried at all (not every installed book),
+    # and its own result order is preserved rather than run through the
+    # priority-tier interleaving used for whole-library searches.
+    assert queried_books == ["other_book_a"]
+    assert [item["title"] for item in data["results"]] == ["A 1", "A 2"]
+
+
+def test_search_suggest_unknown_book_filter_returns_no_results(client, tmp_path, monkeypatch):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(SAMPLE_LIBRARY_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    def _boom(*args, **kwargs):
+        raise AssertionError("suggest() should not be called for an unknown book filter")
+
+    monkeypatch.setattr(routes, "suggest", _boom)
+
+    response = client.get("/api/search-suggest?q=octopus&book=does-not-exist")
+
+    assert json.loads(response.data) == {"results": []}
 
 
 def test_search_suggest_omits_books_with_no_results(client, tmp_path, monkeypatch):

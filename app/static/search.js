@@ -1,6 +1,7 @@
 (function () {
   var form = document.getElementById("search-form");
   var input = document.getElementById("search-input");
+  var bookSelect = document.getElementById("search-book");
   var prompt = document.getElementById("search-prompt");
   var status = document.getElementById("search-status");
   var resultsPanel = document.getElementById("search-results");
@@ -36,20 +37,25 @@
 
   function runSearch(term) {
     var thisRequest = ++requestId;
+    var filterToOneBook = !!(bookSelect && bookSelect.value);
     showLoading();
-    fetch("/api/search-suggest?q=" + encodeURIComponent(term))
+    var url = "/api/search-suggest?q=" + encodeURIComponent(term);
+    if (filterToOneBook) {
+      url += "&book=" + encodeURIComponent(bookSelect.value);
+    }
+    fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (thisRequest !== requestId) return; // a newer search already superseded this
-        renderResults(data.results || []);
+        renderResults(data.results || [], filterToOneBook);
       })
       .catch(function () {
         if (thisRequest !== requestId) return;
-        renderResults([]);
+        renderResults([], filterToOneBook);
       });
   }
 
-  function renderResults(results) {
+  function renderResults(results, filterToOneBook) {
     prompt.hidden = true;
     status.hidden = true;
     resultsPanel.hidden = false;
@@ -73,13 +79,17 @@
       var title = document.createElement("span");
       title.className = "search-result-title";
       title.textContent = item.title;
-
-      var source = document.createElement("span");
-      source.className = "search-result-source";
-      source.textContent = item.book_title;
-
       a.appendChild(title);
-      a.appendChild(source);
+
+      // Every result already shares the same source when filtered to one
+      // book - the label would just repeat itself on every row.
+      if (!filterToOneBook) {
+        var source = document.createElement("span");
+        source.className = "search-result-source";
+        source.textContent = item.book_title;
+        a.appendChild(source);
+      }
+
       li.appendChild(a);
       list.appendChild(li);
     });

@@ -138,18 +138,40 @@ body.library-page {
 
 .library-card {
   display: flex;
-  gap: 1rem;
-  padding: 1.25rem;
+  flex-direction: column;
   background: #1e293b;
   border: 1px solid transparent;
   border-radius: 0.75rem;
-  color: inherit;
-  text-decoration: none;
   transition: border-color 0.15s ease;
 }
 
 .library-card:hover,
-.library-card:focus-visible {
+.library-card:focus-within {
+  border-color: #2563eb;
+}
+
+.library-card-open {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.library-card-search-link {
+  align-self: flex-start;
+  margin: 0 1.25rem 1rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  color: #93c5fd;
+  text-decoration: none;
+  border: 1px solid #334155;
+  border-radius: 0.4rem;
+}
+
+.library-card-search-link:hover,
+.library-card-search-link:focus-visible {
+  color: #fff;
   border-color: #2563eb;
 }
 
@@ -237,9 +259,20 @@ body.library-page {
 
 .search-form {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+.search-book-select {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.search-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .search-input {

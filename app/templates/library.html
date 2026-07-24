@@ -13,25 +13,28 @@
     <div class="library-grid">
       {% for entry in entries %}
         {% set book = entry.book %}
-        <a class="library-card" href="{{ entry.viewer_url }}">
-          <div class="library-card-icon">
-            {% if book.favicon_data_uri %}
-              <img src="{{ book.favicon_data_uri }}" alt="" width="48" height="48">
-            {% else %}
-              <span class="library-card-icon-placeholder" aria-hidden="true">&#128218;</span>
-            {% endif %}
-          </div>
-          <div class="library-card-body">
-            <h2>{{ book.title }}</h2>
-            {% if book.description %}<p class="library-card-desc">{{ book.description }}</p>{% endif %}
-            <p class="library-card-meta">
-              {% if book.language %}
-                <span>{% if book.language.split(',')|length > 3 %}Muchos idiomas{% else %}{{ book.language }}{% endif %}</span>
+        <div class="library-card">
+          <a class="library-card-open" href="{{ entry.viewer_url }}">
+            <div class="library-card-icon">
+              {% if book.favicon_data_uri %}
+                <img src="{{ book.favicon_data_uri }}" alt="" width="48" height="48">
+              {% else %}
+                <span class="library-card-icon-placeholder" aria-hidden="true">&#128218;</span>
               {% endif %}
-              {% if book.article_count %}<span>{{ "{:,}".format(book.article_count).replace(",", ".") }} artículos</span>{% endif %}
-            </p>
-          </div>
-        </a>
+            </div>
+            <div class="library-card-body">
+              <h2>{{ book.title }}</h2>
+              {% if book.description %}<p class="library-card-desc">{{ book.description }}</p>{% endif %}
+              <p class="library-card-meta">
+                {% if book.language %}
+                  <span>{% if book.language.split(',')|length > 3 %}Muchos idiomas{% else %}{{ book.language }}{% endif %}</span>
+                {% endif %}
+                {% if book.article_count %}<span>{{ "{:,}".format(book.article_count).replace(",", ".") }} artículos</span>{% endif %}
+              </p>
+            </div>
+          </a>
+          <a class="library-card-search-link" href="{{ url_for('portal.search') }}?book={{ book.name | urlencode }}">Buscar en este libro</a>
+        </div>
       {% endfor %}
     </div>
   {% else %}

@@ -11,11 +11,19 @@
 
   {% if has_books %}
     <form id="search-form" class="search-form">
-      <input type="search" id="search-input" class="library-search search-input"
-             placeholder="Buscar artículos (ej. pulpo)..." autocomplete="off">
-      <button type="submit" class="library-link search-submit">Buscar</button>
+      <select id="search-book" class="library-search search-book-select">
+        <option value="">Todas las bibliotecas</option>
+        {% for book in books %}
+          <option value="{{ book.name }}" {% if book.name == selected_book %}selected{% endif %}>{{ book.title }}</option>
+        {% endfor %}
+      </select>
+      <div class="search-input-row">
+        <input type="search" id="search-input" class="library-search search-input"
+               placeholder="Buscar artículos (ej. pulpo)..." autocomplete="off">
+        <button type="submit" class="library-link search-submit">Buscar</button>
+      </div>
     </form>
-    <p class="search-prompt" id="search-prompt">Presiona Buscar (o Enter) para buscar en todas las bibliotecas instaladas.</p>
+    <p class="search-prompt" id="search-prompt">Presiona Buscar (o Enter) para buscar.</p>
     <div class="search-status" id="search-status" hidden>
       <span class="spinner" aria-hidden="true"></span> Buscando...
     </div>

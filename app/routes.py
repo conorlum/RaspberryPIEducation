@@ -85,6 +85,8 @@ def search():
         "search.html",
         portal_title=current_app.config["PORTAL_TITLE"],
         has_books=bool(books),
+        books=books,
+        selected_book=request.args.get("book", ""),
     )
 
 
@@ -97,6 +99,12 @@ def search_suggest():
     books = load_library(current_app.config["LIBRARY_XML"])
     if not books:
         return jsonify({"results": []})
+
+    book_filter = request.args.get("book", "").strip()
+    if book_filter:
+        books = [b for b in books if b.name == book_filter]
+        if not books:
+            return jsonify({"results": []})
 
     base_url = (
         f"http://127.0.0.1:{current_app.config['KIWIX_PORT']}"
@@ -115,7 +123,13 @@ def search_suggest():
         )
 
     book_articles = [(book, a) for book, a in zip(books, results) if a]
-    interleaved = _interleave_results(book_articles)
+    # A single explicitly-selected book has nothing to interleave against -
+    # keep kiwix's own relevance order rather than running it through the
+    # priority-tier logic, which only matters when mixing multiple books.
+    if book_filter:
+        interleaved = [(book, a) for book, articles in book_articles for a in articles]
+    else:
+        interleaved = _interleave_results(book_articles)
 
     results_out = [
         {

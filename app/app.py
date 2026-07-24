@@ -25,11 +25,18 @@ def create_app():
     # setup/systemd/kiwix-serve.service's --urlRootLocation value.
     app.config["KIWIX_URL_ROOT"] = os.environ.get("KIWIX_URL_ROOT", "/kiwix")
     app.config["RESULTS_PER_ZIM"] = int(os.environ.get("RESULTS_PER_ZIM", 5))
+    # /content/ (plain server-rendered pages, real URLs) rather than /viewer#
+    # (kiwix's JS single-page-app reader, hash-routed, with a toolbar that
+    # resizes on scroll) - the latter triggers a known class of Chrome-for-
+    # Android bug where a scroll-triggered resize leaves a blank gap over the
+    # browser's own dynamic toolbar, blocking the back button until the user
+    # swipes instead. Confirmed live: /content/ renders identical content,
+    # in-article links and the book-root main-page redirect both still work.
     app.config["KIWIX_VIEWER_URL_TEMPLATE"] = os.environ.get(
-        "KIWIX_VIEWER_URL_TEMPLATE", "/kiwix/viewer#{name}"
+        "KIWIX_VIEWER_URL_TEMPLATE", "/kiwix/content/{name}"
     )
     app.config["KIWIX_ARTICLE_URL_TEMPLATE"] = os.environ.get(
-        "KIWIX_ARTICLE_URL_TEMPLATE", "/kiwix/viewer#{name}/{path}"
+        "KIWIX_ARTICLE_URL_TEMPLATE", "/kiwix/content/{name}/{path}"
     )
 
     from app.routes import bp
