@@ -7,6 +7,11 @@ from pathlib import Path
 
 _TAG_SPLIT_RE = re.compile(r"[;,]")
 
+_LANGUAGE_NAMES = {
+    "spa": "Español",
+    "eng": "Inglés",
+}
+
 
 @dataclass
 class Book:
@@ -34,7 +39,27 @@ def load_library(library_xml_path):
         root = ET.parse(path).getroot()
     except ET.ParseError:
         return []
-    return [_parse_book(el) for el in root.findall("book")]
+    books = [_parse_book(el) for el in root.findall("book")]
+    _disambiguate_titles(books)
+    return books
+
+
+def _disambiguate_titles(books):
+    """Two ZIMs can share the exact same title metadata (e.g. Wikipedia ES/EN
+    both report "Wikipedia") - append the language so /library cards and
+    /search's book-grouping headers (both keyed on Book.title) can tell them
+    apart, instead of a student clicking a "Wikipedia" result and silently
+    landing on the wrong language.
+    """
+    counts = {}
+    for book in books:
+        key = book.title.lower()
+        counts[key] = counts.get(key, 0) + 1
+    for book in books:
+        if counts[book.title.lower()] > 1 and book.language:
+            primary = book.language.split(",")[0].strip()
+            name = _LANGUAGE_NAMES.get(primary, primary)
+            book.title = f"{book.title} ({name})"
 
 
 def _parse_book(el):
