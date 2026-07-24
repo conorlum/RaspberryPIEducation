@@ -1,0 +1,9 @@
+[Unit]
+Description=Periodically run wifi-idle-kick.service to free up hotspot capacity from idle stations
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+
+[Install]
+WantedBy=timers.target

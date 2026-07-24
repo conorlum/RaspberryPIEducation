@@ -1,0 +1,8 @@
+[Unit]
+Description=Kick idle WiFi stations when the hotspot is near its station-count ceiling
+After=network.target NetworkManager.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=@APP_DIR@/setup/wifi-idle-kick.sh

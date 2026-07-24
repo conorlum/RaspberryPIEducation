@@ -26,7 +26,7 @@ APP_USER="${SUDO_USER:-$USER}"
 
 echo "==> Installing system packages"
 apt-get update
-apt-get install -y nginx kiwix-tools python3-venv python3-pip
+apt-get install -y nginx kiwix-tools python3-venv python3-pip iw
 
 if [ ! -f "$APP_DIR/config/settings.env" ]; then
   echo "==> No config/settings.env found, creating one from the example"
@@ -43,12 +43,13 @@ sudo -u "$APP_USER" "$APP_DIR/.venv/bin/pip" install --upgrade pip
 sudo -u "$APP_USER" "$APP_DIR/.venv/bin/pip" install -r "$APP_DIR/requirements.txt"
 
 echo "==> Installing systemd services"
-for unit in rachel-portal kiwix-serve; do
+for unit in rachel-portal kiwix-serve wifi-idle-kick; do
   sed \
     -e "s|@APP_DIR@|$APP_DIR|g" \
     -e "s|@APP_USER@|$APP_USER|g" \
     "$SCRIPT_DIR/systemd/$unit.service" > "/etc/systemd/system/$unit.service"
 done
+cp "$SCRIPT_DIR/systemd/wifi-idle-kick.timer" /etc/systemd/system/wifi-idle-kick.timer
 
 echo "==> Installing nginx config"
 cp "$SCRIPT_DIR/nginx/rachel.conf" /etc/nginx/sites-available/rachel.conf
@@ -68,7 +69,7 @@ echo "==> Hardening for offline / power-loss-prone deployment"
 
 echo "==> Starting services"
 systemctl daemon-reload
-systemctl enable --now rachel-portal kiwix-serve nginx
+systemctl enable --now rachel-portal kiwix-serve nginx wifi-idle-kick.timer
 systemctl reload nginx
 
 echo
