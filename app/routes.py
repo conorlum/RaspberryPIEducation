@@ -82,6 +82,7 @@ def library():
 @bp.route("/search")
 def search():
     books = load_library(current_app.config["LIBRARY_XML"])
+    books = sorted(books, key=_library_sort_key)
     return render_template(
         "search.html",
         portal_title=current_app.config["PORTAL_TITLE"],

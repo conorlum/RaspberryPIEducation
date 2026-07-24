@@ -296,3 +296,17 @@ def test_library_route_orders_priority_books_then_alphabetical(client, tmp_path)
     aardvark_pos = body.index("Aardvark Facts")
     zebra_pos = body.index("Zebra Books")
     assert khan_pos < aardvark_pos < zebra_pos
+
+
+def test_search_route_book_dropdown_uses_same_order_as_library(client, tmp_path):
+    library_xml = tmp_path / "library.xml"
+    library_xml.write_text(LIBRARY_ORDER_XML, encoding="utf-8")
+    client.application.config["LIBRARY_XML"] = str(library_xml)
+
+    response = client.get("/search")
+    body = response.data.decode("utf-8")
+
+    khan_pos = body.index("Khan Academy")
+    aardvark_pos = body.index("Aardvark Facts")
+    zebra_pos = body.index("Zebra Books")
+    assert khan_pos < aardvark_pos < zebra_pos
