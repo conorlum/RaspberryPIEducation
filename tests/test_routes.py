@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from markupsafe import escape
 
 import app.routes as routes
 from app.app import create_app
@@ -17,7 +18,12 @@ def client():
 def test_index_renders(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert b"RACHEL" in response.data
+    # Asserts against the actual configured title rather than a hardcoded
+    # default - PORTAL_TITLE is meant to be overridden per-deployment via
+    # config/settings.env, so a real deployment's local settings.env
+    # legitimately makes the response differ from the generic "RACHEL" default.
+    title = str(escape(client.application.config["PORTAL_TITLE"]))
+    assert title.encode("utf-8") in response.data
 
 
 def test_index_shows_empty_state_without_content(client):
