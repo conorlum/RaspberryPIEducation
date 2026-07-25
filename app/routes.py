@@ -193,6 +193,9 @@ def _interleave_results(book_articles):
 
 
 def _redirect_to_home(**_kwargs):
+    hostname = current_app.config.get("PORTAL_HOSTNAME")
+    if hostname:
+        return redirect(f"http://{hostname}/")
     return redirect(url_for("portal.index"))
 
 

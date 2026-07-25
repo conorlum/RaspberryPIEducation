@@ -12,6 +12,15 @@ def create_app():
 
     app = Flask(__name__)
     app.config["PORTAL_TITLE"] = os.environ.get("PORTAL_TITLE", "RACHEL")
+    # Optional friendly hostname (e.g. "ConorsEducationBox") for the
+    # captive-portal redirect to use instead of a relative path, so the OS's
+    # auto-launched popup shows this name instead of whatever connectivity-
+    # check domain it originally probed. Works because setup/hotspot.sh's
+    # dnsmasq wildcard already resolves every hostname on the hotspot to
+    # this Pi - nothing else needs to change for a name to resolve. Left
+    # blank by default (falls back to a relative redirect) since it only
+    # makes sense once a real hotspot SSID/branding is chosen.
+    app.config["PORTAL_HOSTNAME"] = os.environ.get("PORTAL_HOSTNAME", "")
     app.config["CONTENT_DIR"] = os.environ.get(
         "CONTENT_DIR", str(BASE_DIR / "content" / "zim")
     )

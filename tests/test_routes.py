@@ -43,9 +43,21 @@ def test_index_shows_empty_state_without_content(client):
     ],
 )
 def test_captive_portal_probes_redirect_home(client, path):
+    client.application.config["PORTAL_HOSTNAME"] = ""
     response = client.get(path)
     assert response.status_code == 302
     assert response.headers["Location"] == "/"
+
+
+def test_captive_portal_probe_redirects_to_friendly_hostname_when_set(client):
+    client.application.config["PORTAL_HOSTNAME"] = "ConorsEducationBox"
+    response = client.get("/generate_204")
+    assert response.status_code == 302
+    # Werkzeug normalizes the host component of a Location header to
+    # lowercase (hostnames are case-insensitive per RFC) regardless of the
+    # case PORTAL_HOSTNAME is configured with - browsers are expected to
+    # display it the same way in the address bar.
+    assert response.headers["Location"] == "http://conorseducationbox/"
 
 
 def test_unmatched_path_redirects_home(client):
