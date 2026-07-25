@@ -26,6 +26,20 @@ def test_index_renders(client):
     assert title.encode("utf-8") in response.data
 
 
+def test_index_reconnect_help_falls_back_to_ip_without_hostname(client):
+    client.application.config["PORTAL_HOSTNAME"] = ""
+    response = client.get("/")
+    assert b'href="http://10.42.0.1"' in response.data
+    assert b"<code>http://10.42.0.1</code>" in response.data
+
+
+def test_index_reconnect_help_uses_friendly_hostname_when_set(client):
+    client.application.config["PORTAL_HOSTNAME"] = "ConorsEducationBox"
+    response = client.get("/")
+    assert b'href="http://ConorsEducationBox"' in response.data
+    assert b"<code>http://ConorsEducationBox</code>" in response.data
+
+
 def test_index_shows_empty_state_without_content(client):
     response = client.get("/")
     assert b"No content installed yet" in response.data

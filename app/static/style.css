@@ -93,6 +93,15 @@ h1 {
   color: #f1f5f9;
 }
 
+.reconnect-url {
+  text-decoration: none;
+}
+
+.reconnect-url:hover code,
+.reconnect-url:focus-visible code {
+  background: #263449;
+}
+
 body.library-page {
   display: block;
   align-items: initial;

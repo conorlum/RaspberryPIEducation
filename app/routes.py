@@ -52,6 +52,11 @@ def index():
         "index.html",
         portal_title=current_app.config["PORTAL_TITLE"],
         has_content=has_content,
+        # Always spelled out with the scheme - a bare hostname/IP can get
+        # upgraded to https:// by the browser's own default, which fails
+        # since nginx only serves port 80 (confirmed: this broke for a bare
+        # "conorseducationbox" typed without it).
+        reconnect_url="http://" + (current_app.config.get("PORTAL_HOSTNAME") or "10.42.0.1"),
     )
 
 
